@@ -1,18 +1,23 @@
-﻿using Newtonsoft.Json.Linq;
-using PushNotifications.Models;
-using PushSharp.Apple;
+﻿using System;
+using System.IO;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PushSharp.Core;
 using PushSharp.Google;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PushSharp.Apple;
 
 namespace PushNotifications
 {
     class Program
     {
+        public static string MarkS8 = "cGYJ24ElFHI:APA91bFfGQnHQqlVGuKuDW89enx6pV_1CTR0smhConeacGnKSvD_dumkxZW5vDQ3Ax3TxaWbcy3Kgjt_xdLJtXhCEYyCG2ubmPOyvO8mJ4cqmojQvYRmlGREz_pAuo0F3CycWGcXHSid";
+        public static string BenIphone6 = "839841809466B7AD1D8FDAD6608BB614595051FFC7B138A5F5503F7FBDC34117";
+        public static string PushCertificate = "C:\\GIT\\PushNotifications\\PushNotifications\\PushCredentials\\Apple\\ios_development.p12";
+        public static string PushCertificatePassword = File.ReadAllText("C:\\GIT\\PushNotifications\\PushNotifications\\PushCredentials\\Apple\\ios_development_password.txt");
+
+
+
         static void Main(string[] args)
         {
             bool CloseApp = false;
@@ -29,40 +34,66 @@ namespace PushNotifications
             {
                 var input = Console.ReadLine();
 
-                if (input == "1")
+                switch (input)
                 {
-                    Console.WriteLine("Android Push Sent");
-                    input = null;
-                }
-                else if (input == "2")
-                {
-                    Console.WriteLine("Apple Push Sent");
-                    input = null;
+                    case "1":
+                        {
+                            //Payload BasicPayload = new Payload { actionType = "none" };
+                            Message MessagePayload = new Message { actionType = "meassage", message = "This is a message" };
+                            //Warning WarningPayload = new Warning { actionType = "warning", vehicleId = "M2lQ" };
+                            //Deal DealPayload = new Deal { actionType = "deal" };
+                            //Url URLPayload = new Url { actionType = "url" , url = "http://smartdriverclub.co.uk" };
+                            PushNotification StandardNotification = new PushNotification { title = "New Notification", body = "Test Notification", payload = MessagePayload };
 
-                }
-                else if (input == "3")
-                {
-                    CloseApp = true;
-                    input = null;
 
-                }
-                else
-                {
-                    Console.WriteLine("Incorrect Selection");
-                    Console.WriteLine(" ");
-                    Console.WriteLine("1. Send Android Push Notification");
-                    Console.WriteLine("2. Send Apple Push Notificaiton");
-                    Console.WriteLine(" ");
-                    Console.WriteLine("3. Exit The Application");
-                    input = null;
+                            List<string> AndroidPushTokens = new List<string>();
+                            AndroidPushTokens.Add(MarkS8);
+
+
+                            SendAndroidPushNotification(AndroidPushTokens, StandardNotification);
+
+                            Console.WriteLine("Android Push Sent");
+                            input = null;
+                            break;
+                        }
+                    case "2":
+                        {
+                            PushNotification StandardNotification = new PushNotification { title = "New Notification", body = "This is a test" };
+
+                            List<string> ApplePushTokens = new List<string>();
+                            ApplePushTokens.Add(BenIphone6);
+
+                            SendApplePushNotification(ApplePushTokens, StandardNotification);
+
+                            Console.WriteLine("Apple Push Sent");
+                            input = null;
+                            break;
+                        }
+                    case "3":
+                        {
+                            CloseApp = true;
+                            input = null;
+                            break;
+                        }
+                    default:
+                        {
+                            Console.WriteLine("Incorrect Selection");
+                            Console.WriteLine(" ");
+                            Console.WriteLine("1. Send Android Push Notification");
+                            Console.WriteLine("2. Send Apple Push Notificaiton");
+                            Console.WriteLine(" ");
+                            Console.WriteLine("3. Exit The Application");
+                            input = null;
+                            break;
+                        }
                 }
             }
         }
 
-        private void SendAndroidPushNotification(List<string> AndroidPushTokens)
+        private static void SendAndroidPushNotification(List<string> AndroidPushTokens, PushNotification Payload)
         {
             // Configuration
-            var config = new GcmConfiguration("GCM-SENDER-ID", "AUTH-TOKEN", null);
+            var config = new GcmConfiguration("GCM-SENDER-ID", "AIzaSyByUHzXZY1lWQU34ssv3a9R3BSxJJALkqk", null);
 
             // Create a new broker
             var gcmBroker = new GcmServiceBroker(config);
@@ -150,7 +181,7 @@ namespace PushNotifications
                     RegistrationIds = new List<string> {
                      PushToken
                     },
-                    Notification = JObject.Parse("{ \"somekey\" : \"somevalue\" }")
+                    Data = JObject.Parse(JsonConvert.SerializeObject(Payload))
                 });
             }
 
@@ -160,19 +191,21 @@ namespace PushNotifications
             gcmBroker.Stop();
         }
 
-        private void SnedApplePushNotification(List<string> ApplePushTokens)
+        private static void SendApplePushNotification(List<string> ApplePushTokens, PushNotification Payload)
         {
             // Configuration (NOTE: .pfx can also be used here)
-            var config = new ApnsConfiguration(ApnsConfiguration.ApnsServerEnvironment.Sandbox,
-                "push-cert.p12", "push-cert-pwd");
+            var config = new ApnsConfiguration(ApnsConfiguration.ApnsServerEnvironment.Production,
+                PushCertificate, PushCertificatePassword);
 
             // Create a new broker
             var apnsBroker = new ApnsServiceBroker(config);
 
             // Wire up events
-            apnsBroker.OnNotificationFailed += (notification, aggregateEx) => {
+            apnsBroker.OnNotificationFailed += (notification, aggregateEx) =>
+            {
 
-                aggregateEx.Handle(ex => {
+                aggregateEx.Handle(ex =>
+                {
 
                     // See what kind of exception it was to further diagnose
                     if (ex is ApnsNotificationException)
@@ -197,7 +230,8 @@ namespace PushNotifications
                 });
             };
 
-            apnsBroker.OnNotificationSucceeded += (notification) => {
+            apnsBroker.OnNotificationSucceeded += (notification) =>
+            {
                 Console.WriteLine("Apple Notification Sent!");
             };
 
@@ -210,7 +244,7 @@ namespace PushNotifications
                 apnsBroker.QueueNotification(new ApnsNotification
                 {
                     DeviceToken = PushToken,
-                    Payload = JObject.Parse("{\"aps\":{\"badge\":7}}")
+                    Payload = JObject.Parse(JsonConvert.SerializeObject(Payload))
                 });
             }
 
@@ -219,5 +253,39 @@ namespace PushNotifications
             // done with the broker
             apnsBroker.Stop();
         }
+
+        public class PushNotification 
+        {
+            public string title { get; set; }
+            public string body { get; set; }
+            public Payload payload { get; set; }
+            
+        }
+
+        public class Payload
+        {
+            public string actionType { get; set; }
+        }
+
+        public class Message : Payload
+        {
+            public string message { get; set; }
+        }
+
+        public class Warning : Payload
+        {
+            public string vehicleId { get; set; }
+        }
+
+        public class Deal : Payload
+        {
+            
+        }
+
+        public class Url : Payload
+        {
+            public string url { get; set; }
+        }
+
     }
 }
