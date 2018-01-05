@@ -240,3 +240,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+PushNotifications/TestPhones/MarkS8.txt
+PushNotifications/TestPhones/BenIphone6.txt
