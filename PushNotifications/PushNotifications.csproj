@@ -85,6 +85,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="PushCredentials\Apple\ios_development_password.txt" />
+    <Content Include="TestPhones\BenIphone6.txt" />
+    <Content Include="TestPhones\MarkS8.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
