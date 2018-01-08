@@ -16,19 +16,18 @@ namespace PushNotifications
         public static string PushCertificate = "C:\\GIT\\PushNotifications\\PushNotifications\\PushCredentials\\Apple\\ios_development.p12";
         public static string PushCertificatePassword = File.ReadAllText("C:\\GIT\\PushNotifications\\PushNotifications\\PushCredentials\\Apple\\ios_development_password.txt");
 
+        
+
         static void Main(string[] args)
         {
             bool CloseApp = false;
             bool ValidSelection = false;
+            
 
             Console.WriteLine("PUSH NOTIFICATIONS");
-            Console.WriteLine(" ");
-            Console.WriteLine("Please Select An Option To Continue");
-            Console.WriteLine(" ");
-            Console.WriteLine("1. Send Android Push Notification");
-            Console.WriteLine("2. Send Apple Push Notificaiton");
-            Console.WriteLine(" ");
-            Console.WriteLine("3. Exit The Application");
+            LineBreak();
+
+            MainMenu();
 
             while (CloseApp == false)
             {
@@ -42,15 +41,8 @@ namespace PushNotifications
                             List<string> AndroidPushTokens = new List<string>();
                             AndroidPushTokens.Add(MarkS8);
 
-                            Console.WriteLine("Please Select An Payload Option To Continue");
-                            Console.WriteLine(" ");
-                            Console.WriteLine("1. BasicPayload");
-                            Console.WriteLine("2. MessagePayload");
-                            Console.WriteLine("3. WarningPayload");
-                            Console.WriteLine("4. DealPayload");
-                            Console.WriteLine("5. URLPayload");
-                            Console.WriteLine(" ");
-                            Console.WriteLine("6. Go Back");
+                            Console.Clear();
+                            AndroidMenu();
 
                             while (ValidSelection == false)
                             {
@@ -117,27 +109,14 @@ namespace PushNotifications
                                     case "6":
                                         {
                                             Console.Clear();
-                                            Console.WriteLine("Please Select An Option To Continue");
-                                            Console.WriteLine(" ");
-                                            Console.WriteLine("1. Send Android Push Notification");
-                                            Console.WriteLine("2. Send Apple Push Notificaiton");
-                                            Console.WriteLine(" ");
-                                            Console.WriteLine("3. Exit The Application");
+                                            MainMenu();
                                             ValidSelection = true;
                                             break;
                                         }
                                     default:
                                         {
                                             Console.Clear();
-                                            Console.WriteLine("Please Select An Payload Option To Continue");
-                                            Console.WriteLine(" ");
-                                            Console.WriteLine("1. BasicPayload");
-                                            Console.WriteLine("2. MessagePayload");
-                                            Console.WriteLine("3. WarningPayload");
-                                            Console.WriteLine("4. DealPayload");
-                                            Console.WriteLine("5. URLPayload");
-                                            Console.WriteLine(" ");
-                                            Console.WriteLine("6. Go Back");
+                                            AndroidMenu();
                                             break;
                                         }
                                 }
@@ -146,12 +125,10 @@ namespace PushNotifications
                         }
                     case "2":
                         {
-                            PushNotification StandardNotification = new PushNotification { title = "New Notification", body = "This is a test" };
-
                             List<string> ApplePushTokens = new List<string>();
                             ApplePushTokens.Add(BenIphone6);
 
-                            //SendApplePushNotification(ApplePushTokens, StandardNotification);
+                            SendApplePushNotification(ApplePushTokens, null);
 
                             Console.WriteLine("Apple Push Sent");
                             input = null;
@@ -166,12 +143,7 @@ namespace PushNotifications
                     default:
                         {
                             Console.Clear();
-                            Console.WriteLine("Please Select An Option To Continue");
-                            Console.WriteLine(" ");
-                            Console.WriteLine("1. Send Android Push Notification");
-                            Console.WriteLine("2. Send Apple Push Notificaiton");
-                            Console.WriteLine(" ");
-                            Console.WriteLine("3. Exit The Application");
+                            MainMenu();
                             input = null;
                             break;
                         }
@@ -333,7 +305,7 @@ namespace PushNotifications
                 apnsBroker.QueueNotification(new ApnsNotification
                 {
                     DeviceToken = PushToken,
-                    Payload = JObject.Parse(JsonConvert.SerializeObject(Payload))
+                    Payload = JObject.Parse("{\"aps\" : { \"alert\" : \"Hello Ben\" }}")
                 });
             }
 
@@ -376,5 +348,33 @@ namespace PushNotifications
             public string url { get; set; }
         }
 
+        public static void LineBreak()
+        {
+            Console.WriteLine(" ");
+        }
+
+        public static void MainMenu()
+        {
+            Console.WriteLine("Please Select An Option To Continue");
+            LineBreak();
+            Console.WriteLine("1. Send Android Push Notification");
+            Console.WriteLine("2. Send Apple Push Notificaiton");
+            LineBreak();
+            Console.WriteLine("3. Exit The Application");
+        }
+
+        public static void AndroidMenu()
+        {
+            Console.WriteLine("Please Select An Payload Option To Continue");
+            LineBreak();
+            Console.WriteLine("1. BasicPayload");
+            Console.WriteLine("2. MessagePayload");
+            Console.WriteLine("3. WarningPayload");
+            Console.WriteLine("4. DealPayload");
+            Console.WriteLine("5. URLPayload");
+            LineBreak();
+            Console.WriteLine("6. Go Back");
+        }
+        
     }
 }
