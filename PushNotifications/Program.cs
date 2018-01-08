@@ -305,7 +305,7 @@ namespace PushNotifications
                 apnsBroker.QueueNotification(new ApnsNotification
                 {
                     DeviceToken = PushToken,
-                    Payload = JObject.Parse("{\"aps\" : { \"alert\" : \"Hello Ben\" }}")
+                    Payload = JObject.Parse("{\"aps\" : { \"alert\" : \"Test Notification\" }}")
                 });
             }
 
